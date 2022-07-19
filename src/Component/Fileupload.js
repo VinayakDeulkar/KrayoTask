@@ -1,18 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Form, Button, Row, Col, Table, Navbar, Nav } from 'react-bootstrap'
-import AWS from 'aws-sdk'
 import { useNavigate } from 'react-router-dom'
-
-
-AWS.config.update({
-    accessKeyId: process.env.REACT_APP_ACCESSKEY,
-    secretAccessKey: process.env.REACT_APP_SECRETKEY
-})
-
-const myBucket = new AWS.S3({
-    params: { Bucket: process.env.REACT_APP_BUCKETNAME },
-    region: process.env.REACT_APP_REGION,
-})
+import myBucket from '../AwsConfig'
 export default function Fileupload() {
     const [selectedFile, setselectedFile] = useState(null)
     const [UploadedData, setUploadedData] = useState([])
@@ -23,6 +12,7 @@ export default function Fileupload() {
         const params = {
             Bucket: process.env.REACT_APP_BUCKETNAME
         }
+        //Get All files from Bucket
         myBucket.listObjects(params, (err, res) => {
             if (err) console.log(err)
             else {
@@ -39,13 +29,19 @@ export default function Fileupload() {
         console.log('inside useeffect');
     }, [])
 
+    //Select File function
     const handleChange = (e) => {
         setselectedFile(e.target.files[0])
     }
+
+    //Logout Function
     const Logout = () => {
         localStorage.removeItem('_token')
         navigate('/')
     }
+
+
+    //Logic for Uploading File
     const fileupload = async (file) => {
         const fileName = Token.googleId + "_" + file.name.toLowerCase().split(" ").join("-");
         const params = {
